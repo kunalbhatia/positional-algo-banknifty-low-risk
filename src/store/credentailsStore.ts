@@ -1,7 +1,7 @@
 // dataStore.ts
 
 class CredentailsStore {
-  private static instance: DataStore;
+  private static instance: CredentailsStore;
   private postData: Credentails;
 
   private constructor() {
@@ -16,7 +16,7 @@ class CredentailsStore {
 
   static getInstance() {
     if (!CredentailsStore.instance) {
-      CredentailsStore.instance = new DataStore();
+      CredentailsStore.instance = new CredentailsStore();
     }
     return CredentailsStore.instance;
   }

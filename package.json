@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "start": "ts-node src/index.ts",
     "build": "babel src --extensions .ts -d dist",
+    "typecheck": "tsc --noEmit",
     "commit": "cz"
   },
   "keywords": [

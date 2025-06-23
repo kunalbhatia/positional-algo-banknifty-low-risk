@@ -39,7 +39,7 @@ jobs:
 
       - name: Validate commit messages
         run: |
-          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|wip):(\s\[[A-Z]+-[0-9]+\])?\s.+'
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|wip)(\([a-zA-Z0-9._-]+\))?: ?(\[[A-Z]+-[0-9]+\] )?.+'
           git log --format=%s ${{ github.event.before }}..${{ github.sha }} | while read commit_msg; do
             if ! [[ "$commit_msg" =~ $pattern ]]; then
               echo "❌ Invalid commit message: '$commit_msg'"
