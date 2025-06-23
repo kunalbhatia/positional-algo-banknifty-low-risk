@@ -28,3 +28,49 @@ jobs:
             git file:///repo \
             --only-verified \
             --fail
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch full Git history
+        run: git fetch --prune --unshallow --tags origin +refs/heads/*:refs/remotes/origin/*
+
+      - name: Validate commit messages
+        run: |
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|wip):(\s\[[A-Z]+-[0-9]+\])?\s.+'
+          git log --format=%s ${{ github.event.before }}..${{ github.sha }} | while read commit_msg; do
+            if ! [[ "$commit_msg" =~ $pattern ]]; then
+              echo "❌ Invalid commit message: '$commit_msg'"
+              echo "💡 Expected format: type: [JiraID-123] message"
+              exit 1
+            fi
+          done
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Check in pnpm-lock.yaml
+        run: test -f pnpm-lock.yaml
+      - name: Run ESLint
+        run: npx eslint . --fix
+      - name: Run Prettier write
+        run: npx prettier --write .
+      - name: Run Prettier check
+        run: npx prettier --check .
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+      - name: Build extension
+        run: pnpm run build
