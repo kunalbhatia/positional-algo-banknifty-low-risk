@@ -72,5 +72,5 @@ jobs:
         run: npx tsc --noEmit
       - name: Audit dependencies
         run: pnpm audit --audit-level=high
-      - name: Build extension
+      - name: Build
         run: pnpm run build
