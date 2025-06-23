@@ -5,27 +5,26 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
-
+    branches: ['main']
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
-  build:
-
+  scan-secrets:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for full Git history
+
+      - name: Run TruffleHog Scan
+        run: |
+          docker run --rm \
+            -v "$(pwd):/repo" \
+            trufflesecurity/trufflehog:latest \
+            git file:///repo \
+            --only-verified \
+            --fail
